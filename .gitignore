@@ -1,0 +1,9 @@
+# PlatformIO build output
+**/.pio/
+
+# VS Code workspace-local settings
+**/.vscode/
+
+# OS/editor files
+**/.DS_Store
+**/Thumbs.db

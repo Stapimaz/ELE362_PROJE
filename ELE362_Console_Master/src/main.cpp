@@ -10,7 +10,7 @@
 #define BAUD 38400
 #define MYUBRR (F_CPU / 16 / BAUD - 1)
 #define TILT_FULL_SCALE 56
-#define TILT_DEADZONE 3
+#define TILT_DEADZONE 1
 #define SERVO_LIFE_BASE 300
 #define SERVO_LIFE_STEP 60
 
@@ -229,8 +229,8 @@ void Update_Enemies(void) {
     uint8_t enemy_step = 1;
 
     enemy_speed_extra_accum += (enemy_speed_percent - 100);
-    if (enemy_speed_extra_accum >= 100) {
-        enemy_step = 2;
+    while (enemy_speed_extra_accum >= 100) {
+        enemy_step++;
         enemy_speed_extra_accum -= 100;
     }
 
@@ -250,7 +250,7 @@ void Update_Enemies(void) {
     if (enemies_alive == 0) {
         spawn_timer++;
         if (spawn_timer > 45) {
-            enemy_speed_percent += 10;
+            enemy_speed_percent += 20;
             Game_Init();
             spawn_timer = 0;
         }
@@ -321,7 +321,7 @@ uint8_t Check_Ship_Hit(uint8_t ship_x, uint8_t ship_y) {
 void setup() {
     // Initialize OLED display
     Wire.begin();
-    Wire.setClock(100000);
+    Wire.setClock(400000);
     delay(40);
 
     uint8_t oled_addr = OLED_Detect_Address();
@@ -374,10 +374,19 @@ void loop() {
     int16_t delta_x = (int16_t)game_x - calib_x;
     int16_t delta_y = (int16_t)game_y - calib_y;
 
-    if (delta_x > -TILT_DEADZONE && delta_x < TILT_DEADZONE) {
+    if (delta_x > TILT_DEADZONE) {
+        delta_x -= TILT_DEADZONE;
+    } else if (delta_x < -TILT_DEADZONE) {
+        delta_x += TILT_DEADZONE;
+    } else {
         delta_x = 0;
     }
-    if (delta_y > -TILT_DEADZONE && delta_y < TILT_DEADZONE) {
+
+    if (delta_y > TILT_DEADZONE) {
+        delta_y -= TILT_DEADZONE;
+    } else if (delta_y < -TILT_DEADZONE) {
+        delta_y += TILT_DEADZONE;
+    } else {
         delta_y = 0;
     }
 

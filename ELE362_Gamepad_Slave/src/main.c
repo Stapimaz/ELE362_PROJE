@@ -34,7 +34,7 @@ ISR(USART_RX_vect) {
 
     if (received == 0xAA) {
         PORTD |= (1 << PD4);
-        vibration_counter = 15;
+        vibration_counter = 7;
     }
 }
 
@@ -91,6 +91,12 @@ void MPU6050_Init(void) {
     I2C_Write(MPU_ADDR_W);
     I2C_Write(0x6B);
     I2C_Write(0x00);
+    I2C_Stop();
+
+    I2C_Start();
+    I2C_Write(MPU_ADDR_W);
+    I2C_Write(0x1A);
+    I2C_Write(0x04);
     I2C_Stop();
 }
 

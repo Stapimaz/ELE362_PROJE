@@ -227,6 +227,15 @@ void Draw_Bullets(void) {
 void Update_Enemies(void) {
     uint8_t enemies_alive = 0;
     uint8_t enemy_step = 1;
+    uint8_t jitter_amplitude = 0;
+
+    if (enemy_speed_percent > 325) {
+        uint16_t extra_speed = enemy_speed_percent - 325;
+        jitter_amplitude = (extra_speed + 19) / 20;
+        if (jitter_amplitude > 4) {
+            jitter_amplitude = 4;
+        }
+    }
 
     enemy_speed_extra_accum += (enemy_speed_percent - 100);
     while (enemy_speed_extra_accum >= 100) {
@@ -237,6 +246,29 @@ void Update_Enemies(void) {
     for (uint8_t i = 0; i < 3; i++) {
         if (enemy_active[i]) {
             enemy_x[i] -= enemy_step;
+
+            if (jitter_amplitude > 0) {
+                int16_t x_phase = enemy_x[i];
+                int16_t next_y = enemy_y[i];
+                if (x_phase < 0) {
+                    x_phase = -x_phase;
+                }
+
+                if ((x_phase % 20) < 10) {
+                    next_y += jitter_amplitude;
+                } else {
+                    next_y -= jitter_amplitude;
+                }
+
+                if (next_y < 0) {
+                    next_y = 0;
+                }
+                if (next_y > 58) {
+                    next_y = 58;
+                }
+
+                enemy_y[i] = (int8_t)next_y;
+            }
 
             if (enemy_x[i] < -6) {
                 enemy_active[i] = 0;

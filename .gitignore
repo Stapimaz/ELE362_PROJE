@@ -7,3 +7,7 @@
 # OS/editor files
 **/.DS_Store
 **/Thumbs.db
+
+# Local report/diagram artifacts
+ELE362_Console_Master/Proje_Raporu_Duzeltilmis.tex
+Wokwi_DualNano_Diagram_Final.txt

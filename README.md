@@ -39,9 +39,10 @@ Required parts:
 | 1 | Vibration motor (coin motor or ERM) |
 | 1 | NPN transistor (2N2222/BC337) or logic-level N-MOSFET |
 | 1 | Flyback diode (1N4148/1N5819/1N400x) |
-| 1 | Base/gate resistor (around 1k for NPN or 100R for MOSFET gate) |
-| 1 | Pulldown resistor for transistor gate/base (around 10k) |
+| 1 | Electrolytic capacitor (around 470uF-1000uF, 1000uF preferred) |
 | - | Breadboard, jumpers, USB cables |
+
+Note: External pull-up resistors are not required for buttons in this project because AVR internal pull-ups are used.
 
 ## 2) Firmware Requirements
 
@@ -105,12 +106,12 @@ Do not power a motor directly from Nano GPIO for real-world use.
 
 Recommended NPN wiring:
 
-1. Slave D4 -> 1k resistor -> NPN base.
+1. Slave D4 -> NPN base (direct drive in this project build).
 2. NPN emitter -> GND.
 3. NPN collector -> motor negative.
 4. Motor positive -> +5V external (or regulated 5V rail).
 5. Flyback diode across motor terminals (cathode to +5V, anode to collector/motor-).
-6. 10k pulldown from base to GND.
+6. Add 470uF-1000uF electrolytic capacitor between +5V and GND near the motor supply (1000uF was used in this project to reduce voltage dips during motor startup).
 7. Tie external motor supply GND to Slave GND.
 
 ## 4) Software Setup

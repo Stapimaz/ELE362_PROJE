@@ -7,6 +7,10 @@ Open-source two-board game system built with two Arduino Nano (ATmega328P) board
 
 This guide is meant to be enough for anyone to clone the repo, wire the hardware, upload both firmwares, and run the project on their own boards.
 
+## Project Visual
+
+![Dual-Nano Space Shooter circuit overview](docs/images/dual-nano-space-shooter-circuit.jpg)
+
 ## Repository Layout
 
 ```text
@@ -18,6 +22,10 @@ This guide is meant to be enough for anyone to clone the repo, wire the hardware
 |- ELE362_Gamepad_Slave/
 |  |- src/main.c
 |  |- platformio.ini
+|
+|- docs/
+|  `- images/
+|     `- dual-nano-space-shooter-circuit.jpg
 |
 |- ELE362.code-workspace
 `- README.md

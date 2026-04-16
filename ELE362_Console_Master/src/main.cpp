@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -25,6 +24,46 @@ volatile uint8_t game_y = 127;
 volatile uint8_t game_btn = 0;
 volatile uint8_t frame_ready = 0;
 uint8_t display_ready = 0;
+volatile uint32_t system_millis = 0;
+
+ISR(TIMER0_COMPA_vect) {
+    system_millis++;
+}
+
+void Timer0_Init(void) {
+    TCCR0A = (1 << WGM01);
+    TCCR0B = (1 << CS01) | (1 << CS00);
+    OCR0A = 249;
+    TCNT0 = 0;
+    TIMSK0 |= (1 << OCIE0A);
+}
+
+uint32_t Timer0_Millis(void) {
+    uint32_t now;
+    uint8_t sreg = SREG;
+
+    cli();
+    now = system_millis;
+    SREG = sreg;
+
+    return now;
+}
+
+void Delay_Ms(uint32_t ms) {
+    uint32_t start = Timer0_Millis();
+
+    while ((uint32_t)(Timer0_Millis() - start) < ms) {
+    }
+}
+
+// Keep compatible symbols for display libraries that may call Arduino timing APIs.
+extern "C" unsigned long millis(void) {
+    return (unsigned long)Timer0_Millis();
+}
+
+extern "C" void delay(unsigned long ms) {
+    Delay_Ms((uint32_t)ms);
+}
 
 // Game variables
 uint8_t player_lives = 3;
@@ -350,16 +389,16 @@ uint8_t Check_Ship_Hit(uint8_t ship_x, uint8_t ship_y) {
     return 0;
 }
 
-void setup() {
+void App_Init(void) {
     // Initialize OLED display
     Wire.begin();
     Wire.setClock(400000);
-    delay(40);
+    Delay_Ms(40);
 
     uint8_t oled_addr = OLED_Detect_Address();
 
     if (oled_addr == 0) {
-        delay(40);
+        Delay_Ms(40);
         oled_addr = OLED_Detect_Address();
     }
 
@@ -380,11 +419,9 @@ void setup() {
     Buzzer_Stop();
     ADC_Init();
     Game_Init();
-
-    sei();
 }
 
-void loop() {
+void App_Step(void) {
     // Ship position
     static uint8_t ship_x = 10;
     static uint8_t ship_y = 28;
@@ -393,10 +430,10 @@ void loop() {
     static uint8_t calib_y = 127;
     static uint32_t last_update_ms = 0;
 
-    if ((uint32_t)(millis() - last_update_ms) < 16) {
+    if ((uint32_t)(Timer0_Millis() - last_update_ms) < 16) {
         return;
     }
-    last_update_ms = millis();
+    last_update_ms = Timer0_Millis();
 
     if (frame_ready) {
         frame_ready = 0;
@@ -595,5 +632,15 @@ void loop() {
         if (buzzer_timer == 0) {
             Buzzer_Stop();
         }
+    }
+}
+
+int main(void) {
+    Timer0_Init();
+    sei();
+    App_Init();
+
+    while (1) {
+        App_Step();
     }
 }
